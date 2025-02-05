@@ -1,11 +1,28 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar";
 import Link from "next/link";
+import Header from "@/components/header";
 
 const RegisterPage = () => {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  // Check for authentication on mount
+  useEffect(() => {
+    setMounted(true);
+    const token = localStorage.getItem("token");
+    if (token) {
+      router.push("/dashboard");
+    }
+  }, [router]);
+
+  // Prevent hydration issues
+  if (!mounted) {
+    return null;
+  }
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -62,6 +79,7 @@ const RegisterPage = () => {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
+      <Header />
       <div className="flex flex-col items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
           <div className="bg-white px-8 py-10 shadow-sm border border-gray-200 rounded-lg">

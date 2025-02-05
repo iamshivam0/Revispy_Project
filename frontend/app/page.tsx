@@ -1,8 +1,11 @@
+"use client";
 import Image from "next/image";
 import Navbar from "@/components/navbar";
 import header from "@/components/header";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <Navbar />
@@ -23,10 +26,16 @@ export default function Home() {
             the modern individual
           </p>
           <div className="flex gap-4">
-            <button className="bg-black text-white px-8 py-3 rounded-full hover:bg-gray-800 transition-all hover:scale-105">
+            <button
+              onClick={() => router.push("/login")}
+              className="bg-black text-white px-8 py-3 rounded-full hover:bg-gray-800 transition-all hover:scale-105"
+            >
               Shop Collection
             </button>
-            <button className="border border-black px-8 py-3 rounded-full hover:bg-black hover:text-white transition-all">
+            <button
+              onClick={() => router.push("/login")}
+              className="border border-black px-8 py-3 rounded-full hover:bg-black hover:text-white transition-all"
+            >
               Learn More
             </button>
           </div>

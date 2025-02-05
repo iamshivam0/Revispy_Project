@@ -41,13 +41,13 @@ const Navbar = () => {
         <div className="flex justify-end px-4 py-2 text-sm text-gray-600 border-b border-gray-50">
           <div className="flex items-center space-x-6">
             <Link
-              href="/help"
+              href={isLoggedIn ? "/dashboard" : "/login"}
               className="hover:text-gray-900 transition-colors"
             >
               Help
             </Link>
             <Link
-              href="/orders"
+              href={isLoggedIn ? "/dashboard" : "/login"}
               className="hover:text-gray-900 transition-colors"
             >
               Orders
@@ -80,13 +80,12 @@ const Navbar = () => {
             >
               ECOMMERCE
             </Link>
-
             {/* Main Menu */}
             <div className="hidden md:flex items-center space-x-8">
               {categories.map((item) => (
                 <Link
                   key={item}
-                  href={`/${item.toLowerCase().replace(" ", "-")}`}
+                  href={isLoggedIn ? "/dashboard" : "/login"}
                   className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
                 >
                   {item}

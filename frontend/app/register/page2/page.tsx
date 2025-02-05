@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar";
+import Header from "@/components/header";
 
 const VerifyOTPPage = () => {
   const router = useRouter();
@@ -33,11 +34,13 @@ const VerifyOTPPage = () => {
     e.preventDefault();
     const otpString = otp.join("");
     console.log("Verifying OTP:", otpString);
-    // TODO: Implement OTP verification logic
-    // On success, redirect to dashboard or home
-    router.push("/dashboard");
-  };
 
+    if (otpString === "123456") {
+      router.push("/dashboard");
+    } else {
+      alert("Invalid OTP. Please try again.");
+    }
+  };
   const handleResendOTP = () => {
     // TODO: Implement resend OTP logic
     setTimeLeft(30);
@@ -47,6 +50,7 @@ const VerifyOTPPage = () => {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
+      <Header />
       <div className="flex flex-col items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
           <div className="bg-white px-8 py-10 shadow-sm border border-gray-200 rounded-lg">
