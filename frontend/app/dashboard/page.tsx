@@ -3,12 +3,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar";
 import Header from "@/components/header";
-
-interface Category {
-  id: string;
-  name: string;
-  selected: boolean;
-}
 import {
   Card,
   CardContent,
@@ -17,6 +11,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+interface Category {
+  id: string;
+  name: string;
+  selected: boolean;
+}
 
 const DashboardPage = () => {
   const router = useRouter();
@@ -60,6 +60,39 @@ const DashboardPage = () => {
       fetchCategories(currentPage);
     }
   }, [currentPage, isAuthenticated]);
+
+  // Add useEffect to fetch user categories on mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchUserCategories();
+    }
+  }, [isAuthenticated]);
+
+  const fetchUserCategories = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/categories/user`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user categories");
+      }
+
+      const data = await response.json();
+      setSelectedCategories(data);
+    } catch (error) {
+      console.error("Error fetching user categories:", error);
+      setError("Failed to fetch user categories");
+    }
+  };
 
   // Update fetchCategories to include auth check
   const fetchCategories = async (page: number) => {
@@ -115,12 +148,10 @@ const DashboardPage = () => {
         return;
       }
 
-      // Update UI immediately
       const newCategories = [...categories];
       newCategories[index].selected = !newCategories[index].selected;
       setCategories(newCategories);
 
-      // Update selected categories
       const newSelectedCategories = newCategories[index].selected
         ? [...selectedCategories, newCategories[index].name]
         : selectedCategories.filter((cat) => cat !== newCategories[index].name);
@@ -145,7 +176,6 @@ const DashboardPage = () => {
         throw new Error("Failed to update preferences");
       }
 
-      // Update local storage
       const userDataString = localStorage.getItem("user");
       if (userDataString) {
         const userData = JSON.parse(userDataString);
@@ -153,7 +183,6 @@ const DashboardPage = () => {
         localStorage.setItem("user", JSON.stringify(userData));
       }
     } catch (error) {
-      // Revert UI changes on error
       const newCategories = [...categories];
       newCategories[index].selected = !newCategories[index].selected;
       setCategories(newCategories);
@@ -161,7 +190,6 @@ const DashboardPage = () => {
     }
   };
 
-  // Prevent rendering until mounted
   if (!mounted) {
     return null;
   }
@@ -175,17 +203,19 @@ const DashboardPage = () => {
   }
 
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen">
       <Navbar />
       <Header />
-      <div className="max-w-3xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <Card className="mt-4 ">
+      <div className="max-w-3xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-6">
+        {/* Categories Selection Card */}
+        <Card className="mt-4">
           <CardHeader className="border-b flex justify-center text-center">
-            <CardTitle className=" text-2xl font-bold">
+            <CardTitle className="text-2xl font-bold">
               Please mark your interests!
             </CardTitle>
             <CardDescription>We will keep you notified.</CardDescription>
           </CardHeader>
+
           <CardContent className="p-6">
             <div className="space-y-3">
               {categories.map((category, index) => (
@@ -207,6 +237,7 @@ const DashboardPage = () => {
               ))}
             </div>
           </CardContent>
+
           <CardFooter className="border-t p-4 flex justify-between items-center">
             <div className="flex gap-2">
               <button
@@ -223,13 +254,51 @@ const DashboardPage = () => {
                 disabled={currentPage === totalPages}
                 className="px-4 py-2 text-sm rounded-md bg-gray-100 disabled:opacity-50"
               >
-                Next{" "}
+                Next
               </button>
             </div>
             <span className="text-sm text-gray-600">
               Page {currentPage} of {totalPages}
             </span>
           </CardFooter>
+        </Card>
+
+        {/* Selected Categories Card */}
+        <Card>
+          <CardHeader className="border-b">
+            <CardTitle className="text-xl font-semibold text-gray-900">
+              Your Selected Categories
+            </CardTitle>
+            <CardDescription>
+              {selectedCategories.length === 0
+                ? "You haven't selected any categories yet"
+                : `You have selected ${selectedCategories.length} categories`}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            {selectedCategories.length === 0 ? (
+              <div className="text-center py-6">
+                <p className="text-gray-500">
+                  Select categories above to see them here
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {selectedCategories.map((category) => (
+                  <div
+                    key={category}
+                    className="p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-900">
+                        {category}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
         </Card>
       </div>
     </div>
