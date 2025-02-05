@@ -105,6 +105,9 @@ const VerifyOTPPage = () => {
             </div>
           </div>
         </div>
+        <div>
+          <p>OTP for now 123345</p>
+        </div>
       </div>
     </div>
   );

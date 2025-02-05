@@ -73,7 +73,7 @@ const RegisterPage = () => {
       );
 
       // Navigate to dashboard
-      router.push("/dashboard");
+      router.push("/register/page2");
     } catch (error) {
       setError(error instanceof Error ? error.message : "Registration failed");
     } finally {
