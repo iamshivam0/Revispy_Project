@@ -179,12 +179,12 @@ const DashboardPage = () => {
       <Navbar />
       <Header />
       <div className="max-w-3xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <Card className="mt-4">
-          <CardHeader className="border-b">
-            <CardTitle className="text-2xl font-bold">Your Interests</CardTitle>
-            <CardDescription>
-              Select the categories that interest you the most
-            </CardDescription>
+        <Card className="mt-4 ">
+          <CardHeader className="border-b flex justify-center text-center">
+            <CardTitle className=" text-2xl font-bold">
+              Please mark your interests!
+            </CardTitle>
+            <CardDescription>We will keep you notified.</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-3">
