@@ -8,8 +8,15 @@ import Header from "@/components/header";
 const RegisterPage = () => {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-  // Check for authentication on mount
   useEffect(() => {
     setMounted(true);
     const token = localStorage.getItem("token");
@@ -18,30 +25,23 @@ const RegisterPage = () => {
     }
   }, [router]);
 
-  // Prevent hydration issues
   if (!mounted) {
     return null;
   }
 
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-
-    const API_BASE_URL =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api";
+    setError("");
+    setLoading(true);
 
     try {
+      if (formData.password !== formData.confirmPassword) {
+        throw new Error("Passwords do not match!");
+      }
+
+      const API_BASE_URL =
+        process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api";
+
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: {
@@ -56,15 +56,28 @@ const RegisterPage = () => {
 
       const data = await response.json();
 
-      if (response.ok) {
-        console.log("Registration successful:", data);
-        router.push("/register/page2");
-      } else {
-        alert(data.message || "Registration failed");
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed");
       }
+
+      // Store auth data
+      localStorage.setItem("token", data.token);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: data._id,
+          name: data.name,
+          email: data.email,
+          categories: data.categories,
+        })
+      );
+
+      // Navigate to dashboard
+      router.push("/dashboard");
     } catch (error) {
-      console.error("Registration error:", error);
-      alert("An error occurred during registration");
+      setError(error instanceof Error ? error.message : "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -94,6 +107,12 @@ const RegisterPage = () => {
                 Start your journey with us today
               </p>
             </div>
+
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                {error}
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
@@ -174,18 +193,16 @@ const RegisterPage = () => {
 
               <button
                 type="submit"
-                className="w-full bg-black text-white py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200"
+                className="w-full bg-black text-white py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50"
+                disabled={loading}
               >
-                Create Account
+                {loading ? "Creating Account..." : "Create Account"}
               </button>
             </form>
 
             <p className="mt-6 text-center text-sm text-gray-600">
               Already have an account?{" "}
-              <Link
-                href="/login"
-                className="font-medium text-blue-600 hover:text-blue-500"
-              >
+              <Link href="/login" className="font-medium">
                 Sign in
               </Link>
             </p>
